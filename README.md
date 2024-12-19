@@ -90,9 +90,8 @@ public Map<String, Object> generateMaintenanceRequestInvoice(Integer maintenance
             throw new ApiException("Maintenance request not found!");
         }
 
-        // Check if an expert is assigned
-        if (request.getExpert_name() == null) {
-            throw new ApiException("No expert assigned to this maintenance request!");
+        if (!request.getStatus().equalsIgnoreCase("Pending")) {
+            throw new ApiException("Can not send notification for completed requests!!");
         }
 
         MaintenanceExpert expert = maintenanceExpertRepository.findMaintenanceExpertByName(request.getExpert_name());
