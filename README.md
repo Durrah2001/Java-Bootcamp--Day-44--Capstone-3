@@ -38,7 +38,6 @@ public Map<String, Object> generateMaintenanceRequestInvoice(Integer maintenance
         invoiceData.put("Request Id", request.getId());
         invoiceData.put("Owner Name", request.getOwner().getName());
         invoiceData.put("Owner Email", request.getOwner().getEmail());
-        invoiceData.put("Expert Name", request.getExpert().getName());
         invoiceData.put("Total Price", request.getTotalPrice());
         invoiceData.put("Date Generated", LocalDate.now());
         invoiceData.put("Request Status", "Completed");
