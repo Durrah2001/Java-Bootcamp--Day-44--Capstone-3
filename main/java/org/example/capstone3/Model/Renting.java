@@ -35,7 +35,7 @@ public class Renting {
     private String dropOffLocation;
 
     @Column(columnDefinition = "int not null")
-    private Integer motorcycle_id;
+    private Integer motorcycleId;
 
     //Relations
 

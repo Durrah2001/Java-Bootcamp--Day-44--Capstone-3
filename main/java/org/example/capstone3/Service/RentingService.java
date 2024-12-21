@@ -32,7 +32,7 @@ public class RentingService {
 
 
         for(Renting renting : rentings){
-            Motorcycle motorcycle = motorcycleRepository.findMotorcycleById(renting.getMotorcycle_id());
+            Motorcycle motorcycle = motorcycleRepository.findMotorcycleById(renting.getMotorcycleId());
             MotorcycleOutDTO motorcycleDTO = new MotorcycleOutDTO(motorcycle.getBrand(),motorcycle.getModel(),motorcycle.getYear(),motorcycle.getPrice(),motorcycle.getColor(),motorcycle.getIsAvailable(),motorcycle.getIsForSale(),motorcycle.getHasOffer());
             RentingOutDTO rentingDTO = new RentingOutDTO(renting.getPricePerDay(), renting.getPickupLocation(), renting.getDropOffLocation(), motorcycleDTO);
 
@@ -48,7 +48,7 @@ public class RentingService {
         if (owner == null)
             throw new ApiException("Owner not found!");
 
-        Motorcycle motorcycle = motorcycleRepository.findMotorcycleById(renting.getMotorcycle_id());
+        Motorcycle motorcycle = motorcycleRepository.findMotorcycleById(renting.getMotorcycleId());
         if(!owner.getMotorcycles().contains(motorcycle)){
             throw new ApiException("Owner didn't have this motorcycle");
         }

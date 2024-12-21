@@ -3,7 +3,6 @@ package org.example.capstone3.Controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.capstone3.ApiResponse.ApiResponse;
-import org.example.capstone3.InDTO.MaintenanceRequestDTO_In;
 import org.example.capstone3.Model.MaintenanceRequest;
 import org.example.capstone3.OutDTO.MaintenanceRequestOutDTO;
 import org.example.capstone3.Service.MaintenanceRequestService;
@@ -27,26 +26,26 @@ public class MaintenanceRequestController {
         return ResponseEntity.status(200).body(maintenanceRequestDTOS);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity addMaintenanceRequest(@RequestBody @Valid MaintenanceRequestDTO_In maintenanceRequestDTO_in){
-        maintenanceRequestService.addMaintenanceRequest(maintenanceRequestDTO_in);
+    @PostMapping("/add/{ownerId}/{expertId}")
+    public ResponseEntity addMaintenanceRequest(@PathVariable Integer ownerId, @PathVariable Integer  expertId, @RequestBody @Valid MaintenanceRequest maintenanceRequest){
+        maintenanceRequestService.addMaintenanceRequest(ownerId, expertId, maintenanceRequest);
         return ResponseEntity.status(200).body(new ApiResponse("MaintenanceRequest created!"));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity updateMaintenanceRequest(@PathVariable Integer id, @RequestBody @Valid MaintenanceRequestDTO_In maintenanceRequestDTO_in){
+    public ResponseEntity updateMaintenanceRequest(@PathVariable Integer id, @RequestBody @Valid MaintenanceRequest maintenanceRequest){
 
-        maintenanceRequestService.updateMaintenanceRequest(id, maintenanceRequestDTO_in);
+        maintenanceRequestService.updateMaintenanceRequest(id, maintenanceRequest);
         return ResponseEntity.status(200).body(new ApiResponse("MaintenanceRequest updated!"));
 
     }
 
-    @PutMapping("/mark-request-completed/{maintenanceRequestId}/{expertName}")
+    @PutMapping("/mark-request-completed/{maintenanceRequestId}/{expertId}")
     public ApiResponse completeMaintenanceRequest(
             @PathVariable Integer maintenanceRequestId,
-            @PathVariable String expertName) {
+            @PathVariable Integer expertId) {
 
-        maintenanceRequestService.updateMaintenanceRequestStatusToCompleted(maintenanceRequestId, expertName);
+        maintenanceRequestService.updateMaintenanceRequestStatusToCompleted(maintenanceRequestId, expertId);
 
         return new ApiResponse("Maintenance request marked as completed successfully!");
     }
@@ -97,10 +96,10 @@ public class MaintenanceRequestController {
     }
 
 
-    @GetMapping("/upcoming/{expertName}")
-    public ResponseEntity<List<MaintenanceRequest>> getUpcomingRequestsByExpert(@PathVariable String expertName) {
+    @GetMapping("/upcoming/{expertId}")
+    public ResponseEntity<List<MaintenanceRequest>> getUpcomingRequestsByExpert(@PathVariable Integer expertId) {
         LocalDate today = LocalDate.now();  // Get today's date
-        List<MaintenanceRequest> requests = maintenanceRequestService.getUpcomingRequestsByExpert(expertName, today);
+        List<MaintenanceRequest> requests = maintenanceRequestService.getUpcomingRequestsByExpert(expertId, today);
 
         return ResponseEntity.ok(requests);
     }

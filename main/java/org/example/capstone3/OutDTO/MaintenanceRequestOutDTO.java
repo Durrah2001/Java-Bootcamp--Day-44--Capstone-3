@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Setter
 public class MaintenanceRequestOutDTO {
 
-    private LocalDate requestDate = LocalDate.now();
+    private LocalDate requestDate;
 
     private Double totalPrice;
 

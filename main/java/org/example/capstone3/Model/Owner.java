@@ -30,7 +30,7 @@ public class Owner {
 
     @Email(message = "Email should be valid format!")
     @NotEmpty(message = "Email is required!")
-    @Column(columnDefinition = "varchar(30) not null")
+    @Column(columnDefinition = "varchar(30) not null unique")
     private String email;
 
     @NotEmpty(message = "Password is required!")
@@ -44,7 +44,8 @@ public class Owner {
 
 
     @NotEmpty(message = "Phone number is required!")
-    @Column(columnDefinition = "varchar(10) not null")
+    @Column(columnDefinition = "varchar(10) not null unique")
+    @Pattern(regexp = "^05\\d{8}$", message = "Phone number must start with 05 and be 10 digits")
     private String phoneNumber;
 
     @NotEmpty(message = "Owner address is required!")

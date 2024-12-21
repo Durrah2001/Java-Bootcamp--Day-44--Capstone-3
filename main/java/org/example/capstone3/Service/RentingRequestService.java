@@ -39,30 +39,30 @@ public class RentingRequestService {
     }
 
 
-    public Integer addRentingRequest(RentingRequestDTO_In rentingRequestDTOIn) {
-        // Step 1: Validate input dates
-//        if (rentingRequestDTOIn.getStartDate().isAfter(rentingRequestDTOIn.getEndDate())) {
-//            throw new ApiException("Start date cannot be after end date!");
-//        }
-//        if (rentingRequestDTOIn.getStartDate().isBefore(LocalDate.now())) {
-//            throw new ApiException("Start date must be today or in the future!");
-//        }
+    public Integer addRentingRequest(Integer user_id,RentingRequestDTO_In rentingRequestDTOIn) {
+        //Step 1: Validate input dates
+        if (rentingRequestDTOIn.getStartDate().isAfter(rentingRequestDTOIn.getEndDate())) {
+            throw new ApiException("Start date cannot be after end date!");
+        }
+        if (rentingRequestDTOIn.getStartDate().isBefore(LocalDate.now())) {
+            throw new ApiException("Start date must be today or in the future!");
+        }
 
         // Step 2: Check if the Renting offer exists
-        Renting renting = rentingRepository.findRentingById(rentingRequestDTOIn.getRenting_id());
+        Renting renting = rentingRepository.findRentingByMotorcycleId(rentingRequestDTOIn.getMotorcycleId());
         if(renting ==null){
             throw  new ApiException("Renting offer not found!");}
 
         // Step 3: Check for existing rentals on the selected motorcycle
         boolean isRented = rentingRepository.existsByMotorcycleAndDateRange(
-                renting.getMotorcycle_id(), rentingRequestDTOIn.getStartDate(), rentingRequestDTOIn.getEndDate()
+                renting.getMotorcycleId(), rentingRequestDTOIn.getStartDate(), rentingRequestDTOIn.getEndDate()
         );
         if (isRented) {
             throw new ApiException("The motorcycle is not available for the requested dates!");
         }
 
         // Step 4: Fetch the User
-        User user = userRepository.findUserById(rentingRequestDTOIn.getUser_id());
+        User user = userRepository.findUserById(user_id);
         if(user ==null){
             throw  new ApiException("User not found!");}
         // Step 5: Create and save RentingRequest
@@ -71,7 +71,7 @@ public class RentingRequestService {
         rentingRequest.setRenting(renting);
         rentingRequest.setStartDate(rentingRequestDTOIn.getStartDate());
         rentingRequest.setEndDate(rentingRequestDTOIn.getEndDate());
-        rentingRequest.setMotorcycleId(rentingRequestDTOIn.getMotorcycle_id());
+        rentingRequest.setMotorcycleId(rentingRequestDTOIn.getMotorcycleId());
 
         // Calculate total cost based on price per day
         int totalCost = calculateTotalCost(renting.getPricePerDay(), rentingRequestDTOIn.getStartDate(), rentingRequestDTOIn.getEndDate());
@@ -83,25 +83,26 @@ public class RentingRequestService {
         return totalCost;
     }
 
-    // Helper method to calculate total cost
+// Helper method to calculate total cost
     private Integer calculateTotalCost(Double pricePerDay, LocalDate startDate, LocalDate endDate) {
         long days = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
         return (int) (days * pricePerDay);
     }
 
 
-
-    public void updateRentingRequest(Integer rentingRequestId, RentingRequestDTO_In rentingRequestInDTO) {
+    public void updateRentingRequest(Integer rentingRequestId,Integer user_id, RentingRequestDTO_In rentingRequestInDTO) {
         // Step 1: Validate the RentingRequest exists
         RentingRequest existingRentingRequest = rentingRequestRepository.findById(rentingRequestId)
                 .orElseThrow(() -> new ApiException("Renting Request not found"));
 
         // Step 2: Validate the Renting offer exists
-        Renting renting = rentingRepository.findById(rentingRequestInDTO.getRenting_id())
-                .orElseThrow(() -> new ApiException("Renting not found"));
+        Renting renting = rentingRepository.findRentingByMotorcycleId(rentingRequestInDTO.getMotorcycleId());
+        if (renting == null) {
+            throw  new ApiException("Renting offer not found!");
+        }
 
         // Step 3: Validate the User exists
-        User user = userRepository.findById(rentingRequestInDTO.getUser_id())
+        User user = userRepository.findById(user_id)
                 .orElseThrow(() -> new ApiException("User not found"));
 
         // Step 4: Validate input dates
@@ -114,7 +115,7 @@ public class RentingRequestService {
 
         // Step 5: Check motorcycle availability (excluding current renting request)
         boolean isRented = rentingRepository.existsByMotorcycleAndDateRangeExcludingRequest(
-                renting.getMotorcycle_id(),
+                renting.getMotorcycleId(),
                 rentingRequestInDTO.getStartDate(),
                 rentingRequestInDTO.getEndDate(),
                 rentingRequestId
@@ -128,7 +129,7 @@ public class RentingRequestService {
         existingRentingRequest.setEndDate(rentingRequestInDTO.getEndDate());
         existingRentingRequest.setRenting(renting);
         existingRentingRequest.setUser(user);
-        existingRentingRequest.setMotorcycleId(rentingRequestInDTO.getMotorcycle_id());
+        existingRentingRequest.setMotorcycleId(rentingRequestInDTO.getMotorcycleId());
 
         // Step 7: Recalculate and update total cost
         int totalCost = calculateTotalCost(renting.getPricePerDay(), rentingRequestInDTO.getStartDate(), rentingRequestInDTO.getEndDate());
@@ -137,8 +138,6 @@ public class RentingRequestService {
         // Save the updated RentingRequest
         rentingRequestRepository.save(existingRentingRequest);
     }
-
-
 
     public void deleteRentingRequest(Integer rentingRequest_id) {
         // Step 1: Find the RentingRequest
@@ -166,41 +165,45 @@ public class RentingRequestService {
         rentingRequestRepository.delete(rentingRequest);
     }
 
-    public void extendRental(Integer rentingRequestId, LocalDate newEndDate) {
+    public void extendRental(Integer rentingRequestId, LocalDate newEndDate,Integer userId) {
         // Step 1: Validate the Renting Request exists
         RentingRequest rentingRequest = rentingRequestRepository.findRentingRequestById(rentingRequestId) ;
         if (rentingRequest == null) {
-            new ApiException("Renting Request not found");
+            throw new ApiException("Renting Request not found");
         }
 
         // Step 2: Check that the new end date is after the current end date
-        if (!newEndDate.isBefore(rentingRequest.getEndDate()) || newEndDate.isEqual(rentingRequest.getEndDate())) {
+        if (newEndDate.isBefore(rentingRequest.getEndDate()) || newEndDate.isEqual(rentingRequest.getEndDate())) {
             throw new ApiException("New end date must be after the current end date!");
         }
 
         // Step 3: Check motorcycle availability for the new period
         boolean isRented = rentingRepository.existsByMotorcycleAndDateRange(
-                rentingRequest.getRenting().getMotorcycle_id(),
+                rentingRequest.getRenting().getMotorcycleId(),
                 rentingRequest.getStartDate(), // Start checking from the day after the current end date
                 newEndDate
         );
-        if (isRented) {
+        if (!isRented) {
             throw new ApiException("The motorcycle is not available for the requested extension period!");
         }
 
-        // Step 4: Update the end date
-        rentingRequest.setEndDate(newEndDate);
+        if(rentingRequest.getUser().getId() == userId) {
+            // Step 4: Update the end date
+            rentingRequest.setEndDate(newEndDate);
 
-        // Step 5: Recalculate the total cost
-        int updatedTotalCost = calculateTotalCost(
-                rentingRequest.getRenting().getPricePerDay(),
-                rentingRequest.getStartDate(),
-                newEndDate
-        );
-        rentingRequest.setTotalCost(updatedTotalCost);
+            // Step 5: Recalculate the total cost
+            int updatedTotalCost = calculateTotalCost(
+                    rentingRequest.getRenting().getPricePerDay(),
+                    rentingRequest.getStartDate(),
+                    newEndDate
+            );
+            rentingRequest.setTotalCost(updatedTotalCost);
 
-        // Step 6: Save the updated RentingRequest
-        rentingRequestRepository.save(rentingRequest);
+            // Step 6: Save the updated RentingRequest
+            rentingRequestRepository.save(rentingRequest);
+        }else {
+            throw new ApiException("User not found");
+        }
     }
 
 
@@ -208,4 +211,8 @@ public class RentingRequestService {
 
 
 
+
+
 }
+
+

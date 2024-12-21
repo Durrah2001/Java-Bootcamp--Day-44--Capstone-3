@@ -22,7 +22,7 @@ public class MaintenanceExpertService {
         List<MaintenanceExpertOutDTO> maintenanceExpertDTOS =new ArrayList<>();
 
         for(MaintenanceExpert maintenanceExpert:maintenanceExperts){
-            MaintenanceExpertOutDTO maintenanceExpertDTO = new MaintenanceExpertOutDTO(maintenanceExpert.getName(),maintenanceExpert.getEmail(),maintenanceExpert.getSpecialty(),maintenanceExpert.getIsApproved(),maintenanceExpert.getDescription());
+            MaintenanceExpertOutDTO maintenanceExpertDTO = new MaintenanceExpertOutDTO(maintenanceExpert.getName(),maintenanceExpert.getUsername(), maintenanceExpert.getEmail(), maintenanceExpert.getSpecialty(), maintenanceExpert.getIsApproved(), maintenanceExpert.getYearsOfExperience(), maintenanceExpert.getDescription());
             maintenanceExpertDTOS.add(maintenanceExpertDTO);
         }
         return maintenanceExpertDTOS;

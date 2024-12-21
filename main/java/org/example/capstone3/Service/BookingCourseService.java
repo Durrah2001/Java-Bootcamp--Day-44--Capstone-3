@@ -44,8 +44,9 @@ public class BookingCourseService {
                 bookingCourse.getCourseEndDate()
         );
 
+
         if (isUnavailable) {
-            return "Trainer is not available during the requested dates!";
+            throw new ApiException("Trainer is not available during the requested dates!");
         }
 
         // Step 3: Fetch user

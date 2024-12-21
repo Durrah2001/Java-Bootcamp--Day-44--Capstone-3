@@ -16,22 +16,22 @@ import java.time.LocalDate;
 
 public class RentingRequestController {
 
-
     private final RentingRequestService rentingRequestService;
+
 
     @GetMapping("/get")
     public ResponseEntity getAllRentingRequests() {
         return ResponseEntity.status(200).body(rentingRequestService.getAllRentingRequests());
     }
 
-    @PostMapping("/add")
-    public ResponseEntity addRentingRequest(@RequestBody @Valid RentingRequestDTO_In rentingRequestInDTO) {
-        return ResponseEntity.status(200).body(new ApiResponse("Renting request has been successfully created! Total cost:" + rentingRequestService.addRentingRequest(rentingRequestInDTO)));
+    @PostMapping("/add/{user_id}")
+    public ResponseEntity addRentingRequest(@PathVariable Integer user_id,@RequestBody @Valid RentingRequestDTO_In rentingRequestInDTO) {
+        return ResponseEntity.status(200).body(new ApiResponse("Your rental request has been successfully created! Total cost:" + rentingRequestService.addRentingRequest(user_id,rentingRequestInDTO)));
     }
 
-    @PutMapping("/update/{rentingRequest_id}")
-    public ResponseEntity updateRentingRequest(@PathVariable Integer rentingRequest_id,@RequestBody @Valid RentingRequestDTO_In rentingRequestInDTO) {
-        rentingRequestService.updateRentingRequest(rentingRequest_id, rentingRequestInDTO);
+    @PutMapping("/update/{rentingRequest_id}/{user_id}")
+    public ResponseEntity updateRentingRequest(@PathVariable Integer rentingRequest_id,@PathVariable Integer user_id,@RequestBody @Valid RentingRequestDTO_In rentingRequestInDTO) {
+        rentingRequestService.updateRentingRequest(rentingRequest_id,user_id, rentingRequestInDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Renting Request Updated "));
     }
 
@@ -42,14 +42,11 @@ public class RentingRequestController {
     }
 
 
-
-    @PutMapping("/extend-rental/{rentingRequestId}/{newEndDate}")
-    public ResponseEntity extendRental(@PathVariable Integer rentingRequestId,@PathVariable LocalDate newEndDate) {
-        rentingRequestService.extendRental(rentingRequestId,newEndDate);
+    @PutMapping("/extend-rental/{rentingRequestId}/{newEndDate}/{userId}")
+    public ResponseEntity extendRental(@PathVariable Integer rentingRequestId,@PathVariable LocalDate newEndDate,@PathVariable Integer userId) {
+        rentingRequestService.extendRental(rentingRequestId,newEndDate,userId);
         return ResponseEntity.status(200).body(new ApiResponse("Renting Request Extend "));
     }
-
-
 
 
 }

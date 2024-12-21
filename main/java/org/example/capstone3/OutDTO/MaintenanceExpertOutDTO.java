@@ -8,9 +8,17 @@ import lombok.Data;
 public class MaintenanceExpertOutDTO {
 
     private String name;
+
+    private String username;
+
     private String email;
+
     private String specialty;
+
     private Boolean isApproved;
+
+    private Integer yearsOfExperience;
+
     private String description;
 
 

@@ -2,6 +2,7 @@ package org.example.capstone3.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class MaintenanceRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String expert_name;
 
     @Column(columnDefinition = "DATE")
     private LocalDate requestDate = LocalDate.now();  // Date when the maintenance request was created by owner
@@ -29,11 +31,7 @@ public class MaintenanceRequest {
     @Column(columnDefinition = "Double")
     private Double totalPrice;
 
-    @Column(columnDefinition = "varchar(15) not null")
-    private String expert_name;
-
     @Pattern(regexp = "^(Pending|Completed)$")
-    @NotEmpty(message = "varchar(10)")
     @Column(columnDefinition = "varchar(10) default 'Pending'")
     private String status;
 
@@ -47,6 +45,7 @@ public class MaintenanceRequest {
     //Relations
 
     @ManyToOne
+
     @JsonIgnore
     private MaintenanceExpert expert;
 
@@ -54,8 +53,8 @@ public class MaintenanceRequest {
     @JsonIgnore
     private Owner owner;  // The owner who made the maintenance request
 
-    public MaintenanceRequest(String expert_name,LocalDate pickupDate,Owner owner,Integer motorcycle_id){
-        this.expert_name= expert_name;
+    public MaintenanceRequest( LocalDate pickupDate, Owner owner, Integer motorcycle_id){
+
         this.pickupDate=pickupDate;
         this.owner=owner;
         this.motorcycle_id=motorcycle_id;

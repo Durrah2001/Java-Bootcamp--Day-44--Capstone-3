@@ -21,7 +21,7 @@ public interface MaintenanceRequestRepository extends JpaRepository<MaintenanceR
 
     List<MaintenanceRequest> findMaintenanceRequestByStatus(String status);
 
-    @Query("SELECT m FROM MaintenanceRequest m WHERE m.expert_name = :expertName AND m.pickupDate > :today And m.status = 'Pending'")
-    List<MaintenanceRequest> findUpcomingRequestsByExpert(String expertName,  LocalDate today);
+    @Query("SELECT m FROM MaintenanceRequest m WHERE m.expert.id = :id AND m.pickupDate > :today And m.status = 'Pending'")
+    List<MaintenanceRequest> findUpcomingRequestsByExpertId(Integer id,  LocalDate today);
 
 }
